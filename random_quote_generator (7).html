@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Random Quote Generator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #ffffff;
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .main-card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 40px 36px 32px;
+      max-width: 620px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+
+    .category-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .cat-btn {
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .cat-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .cat-btn.active {
+      background: #e94560;
+      border-color: #e94560;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .quote-box {
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .quote-mark {
+      font-size: 64px;
+      color: #e94560;
+      line-height: 0.8;
+      font-family: Georgia, serif;
+    }
+
+    #quote-text {
+      font-size: 20px;
+      color: #ffffff;
+      line-height: 1.8;
+      font-style: italic;
+      min-height: 80px;
+      transition: opacity 0.3s ease;
+    }
+
+    #author-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #e94560;
+      text-align: right;
+      transition: opacity 0.3s ease;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      margin: 4px 0;
+    }
+
+    .spinner {
+      display: none;
+      width: 36px;
+      height: 36px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: #e94560;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .action-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .icon-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.75);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .icon-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .icon-btn.liked { color: #e94560; border-color: #e94560; }
+    .icon-btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+    .btn-new {
+      width: 100%;
+      padding: 14px;
+      background: #e94560;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+    .btn-new:hover { background: #c73652; }
+    .btn-new:active { transform: scale(0.98); }
+
+    .favourites-section {
+      max-width: 620px;
+      width: 100%;
+      margin-top: 24px;
+    }
+
+    .fav-header {
+      color: rgba(255,255,255,0.5);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .fav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .fav-item {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: rgba(255,255,255,0.8);
+      font-size: 14px;
+      font-style: italic;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .fav-item span { flex: 1; line-height: 1.6; }
+
+    .fav-remove {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.3);
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      padding: 0 4px;
+      transition: color 0.2s;
+    }
+    .fav-remove:hover { color: #e94560; }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #e94560;
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      transition: transform 0.35s ease;
+      z-index: 999;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    .fade-out { opacity: 0 !important; }
+
+    @media (max-width: 480px) {
+      .main-card { padding: 28px 20px 24px; }
+      #quote-text { font-size: 17px; }
+      h1 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>✦ Random Quote Generator</h1>
+
+  <div class="main-card">
+
+    <!-- Category Filter -->
+    <div class="category-bar">
+      <button class="cat-btn active" onclick="setCategory('all', this)">All</button>
+      <button class="cat-btn" onclick="setCategory('motivation', this)">Motivation</button>
+      <button class="cat-btn" onclick="setCategory('wisdom', this)">Wisdom</button>
+      <button class="cat-btn" onclick="setCategory('life', this)">Life</button>
+      <button class="cat-btn" onclick="setCategory('courage', this)">Courage</button>
+      <button class="cat-btn" onclick="setCategory('success', this)">Success</button>
+    </div>
+
+    <!-- Quote Display -->
+    <div class="quote-box">
+      <div class="quote-mark">"</div>
+      <div class="spinner" id="spinner"></div>
+      <p id="quote-text"></p>
+      <hr class="divider">
+      <p id="author-name"></p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-row">
+      <button class="icon-btn" id="like-btn" onclick="toggleFavourite()">
+        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <span id="like-label">Save</span>
+      </button>
+
+      <button class="icon-btn" onclick="copyQuote()">
+        <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        Copy
+      </button>
+
+      <button class="icon-btn" onclick="shareWhatsApp()">
+        <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp
+      </button>
+
+      <button class="icon-btn" onclick="shareTweet()">
+        <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Tweet
+      </button>
+    </div>
+
+    <button class="btn-new" onclick="newQuote()">New Quote</button>
+  </div>
+
+  <!-- Favourites -->
+  <div class="favourites-section" id="fav-section" style="display:none;">
+    <p class="fav-header">⭐ Saved Quotes</p>
+    <div class="fav-list" id="fav-list"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const quotes = [
+      { text: "The only way to do great work is to love what you do.", author: "Steve Jobs", category: "motivation" },
+      { text: "Strive not to be a success, but rather to be of value.", author: "Albert Einstein", category: "success" },
+      { text: "In the middle of every difficulty lies opportunity.", author: "Albert Einstein", category: "motivation" },
+      { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius", category: "wisdom" },
+      { text: "Life is what happens when you are busy making other plans.", author: "John Lennon", category: "life" },
+      { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt", category: "motivation" },
+      { text: "You miss 100% of the shots you don't take.", author: "Wayne Gretzky", category: "courage" },
+      { text: "Whether you think you can or you think you can't, you're right.", author: "Henry Ford", category: "success" },
+      { text: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb", category: "wisdom" },
+      { text: "Spread love everywhere you go. Let no one ever come to you without leaving happier.", author: "Mother Teresa", category: "life" },
+      { text: "Do not go where the path may lead; go where there is no path and leave a trail.", author: "Ralph Waldo Emerson", category: "courage" },
+      { text: "The greatest glory in living lies not in never falling, but in rising every time we fall.", author: "Nelson Mandela", category: "courage" },
+      { text: "Life is either a daring adventure or nothing at all.", author: "Helen Keller", category: "life" },
+      { text: "Many of life's failures are people who did not realize how close they were to success when they gave up.", author: "Thomas Edison", category: "success" },
+      { text: "You will face many defeats in life, but never let yourself be defeated.", author: "Maya Angelou", category: "courage" },
+      { text: "An unexamined life is not worth living.", author: "Socrates", category: "wisdom" },
+      { text: "In wisdom gathered over time I have found that every experience is a form of exploration.", author: "Ansel Adams", category: "wisdom" },
+      { text: "The secret of getting ahead is getting started.", author: "Mark Twain", category: "motivation" },
+      { text: "It always seems impossible until it's done.", author: "Nelson Mandela", category: "motivation" },
+      { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill", category: "success" }
+    ];
+
+    let currentIndex = -1;
+    let activeCategory = 'all';
+    let favourites = JSON.parse(localStorage.getItem('qg_favourites') || '[]');
+
+    function filteredQuotes() {
+      return activeCategory === 'all' ? quotes : quotes.filter(q => q.category === activeCategory);
+    }
+
+    function newQuote() {
+      const pool = filteredQuotes();
+      if (pool.length === 0) return;
+
+      const qText = document.getElementById('quote-text');
+      const qAuth = document.getElementById('author-name');
+
+      qText.style.opacity = '0';
+      qAuth.style.opacity = '0';
+
+      setTimeout(() => {
+        let idx;
+        do { idx = Math.floor(Math.random() * pool.length); } while (idx === currentIndex && pool.length > 1);
+        currentIndex = idx;
+
+        qText.textContent = pool[idx].text;
+        qAuth.textContent = '— ' + pool[idx].author;
+
+        qText.style.transition = 'opacity 0.4s';
+        qAuth.style.transition = 'opacity 0.4s';
+        qText.style.opacity = '1';
+        qAuth.style.opacity = '1';
+
+        updateLikeBtn();
+      }, 200);
+    }
+
+    function setCategory(cat, btn) {
+      activeCategory = cat;
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentIndex = -1;
+      newQuote();
+    }
+
+    function getCurrentQuote() {
+      const pool = filteredQuotes();
+      return pool[currentIndex] || null;
+    }
+
+    function toggleFavourite() {
+      const q = getCurrentQuote();
+      if (!q) return;
+      const key = q.text;
+      const idx = favourites.findIndex(f => f.text === key);
+      if (idx === -1) {
+        favourites.push(q);
+        showToast('Quote saved to favourites!');
+      } else {
+        favourites.splice(idx, 1);
+        showToast('Removed from favourites.');
+      }
+      localStorage.setItem('qg_favourites', JSON.stringify(favourites));
+      updateLikeBtn();
+      renderFavourites();
+    }
+
+    function updateLikeBtn() {
+      const q = getCurrentQuote();
+      const btn = document.getElementById('like-btn');
+      const label = document.getElementById('like-label');
+      if (q && favourites.find(f => f.text === q.text)) {
+        btn.classList.add('liked');
+        label.textContent = 'Saved ✓';
+      } else {
+        btn.classList.remove('liked');
+        label.textContent = 'Save';
+      }
+    }
+
+    function copyQuote() {
+      const q = getCurrentQuote();
+      if (!q) return;
+      navigator.clipboard.writeText(`"${q.text}" — ${q.author}`).then(() => showToast('Copied to clipboard!'));
+    }
+
+    function shareWhatsApp() {
+      const q = getCurrentQuote();
+      if (!q) return;
+      const msg = encodeURIComponent(`"${q.text}" — ${q.author}`);
+      window.open(`https://wa.me/?text=${msg}`, '_blank');
+    }
+
+    function shareTweet() {
+      const q = getCurrentQuote();
+      if (!q) return;
+      const msg = encodeURIComponent(`"${q.text}" — ${q.author}`);
+      window.open(`https://twitter.com/intent/tweet?text=${msg}`, '_blank');
+    }
+
+    function renderFavourites() {
+      const section = document.getElementById('fav-section');
+      const list = document.getElementById('fav-list');
+      if (favourites.length === 0) {
+        section.style.display = 'none';
+        return;
+      }
+      section.style.display = 'block';
+      list.innerHTML = favourites.map((f, i) => `
+        <div class="fav-item">
+          <span>"${f.text}" <br><strong style="color:#e94560; font-style:normal;">— ${f.author}</strong></span>
+          <button class="fav-remove" onclick="removeFav(${i})" title="Remove">✕</button>
+        </div>
+      `).join('');
+    }
+
+    function removeFav(i) {
+      favourites.splice(i, 1);
+      localStorage.setItem('qg_favourites', JSON.stringify(favourites));
+      renderFavourites();
+      updateLikeBtn();
+      showToast('Removed from favourites.');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    newQuote();
+    renderFavourites();
+  </script>
+
+</body>
+</html>
