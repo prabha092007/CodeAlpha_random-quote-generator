@@ -6,7 +6,7 @@ A clean and interactive web application that displays random inspirational quote
 
 ## 🌐 Live Demo
 
-[Click here to view the live app](https://yourusername.github.io/random-quote-generator/random_quote_generator.html)
+[Click here to view the live app](https://prabha092007.github.io/random-quote-generator/random_quote_generator.html)
 
 ---
 
