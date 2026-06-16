@@ -1,5 +1,3 @@
-# CodeAlpha_random-quote-generator
-A responsive web app that displays random inspirational quotes with category filters, save to favourites, copy, and social share features — built with HTML, CSS &amp; JavaScript.
 # 🎯 Random Quote Generator
 
 A clean and interactive web application that displays random inspirational quotes from famous personalities. Built using HTML, CSS, and JavaScript.
@@ -113,4 +111,3 @@ This project is open source and available under the [MIT License](LICENSE).
 ---
 
 *Built as part of CodeAlpha Web Development Internship — Task 2*
-
